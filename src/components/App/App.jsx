@@ -7,6 +7,7 @@ import { fetchImagesWithTopic } from '../../unsplash-api';
 import { Loader } from '../Loader/Loader';
 import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
 import { LoadMoreBtn } from '../LoadMoreBtn/LoadMoreBtn';
+import ImageModal from '../ImageModal/ImageModal';
 
 
 const App = () => {
@@ -14,6 +15,8 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [topic, setTopic] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   
   const handleSearch = async (searchTopic) => {
     if (searchTopic.trim() === '') {
@@ -26,9 +29,7 @@ const App = () => {
       setTopic(searchTopic);
       const data = await fetchImagesWithTopic(1, 12, searchTopic);
       setImages(data.results);
-      setPage(2);
-      // console.log('DATA', data);
-      // console.log('RESULTS',data.results)
+      setPage(2);      
     } catch (err) {      
       ErrorMessage(err.message);
     }
@@ -52,13 +53,24 @@ const App = () => {
     }
   };
 
+  const openModal = (image) => {
+    setSelectedImage(image);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedImage(null);
+  };
+
   return (
     <div>
       <SearchBar onSearch={handleSearch}/>
       <Toaster />
       {loading && <Loader />}
-      <ImageGallery images={images} />
+      <ImageGallery images={images} onImageClick={openModal}/>
       {images.length > 0 && !loading && <LoadMoreBtn onLoadMore={handleLoadMore} />}
+      <ImageModal isOpen={isModalOpen} image={selectedImage} onClose={closeModal} />
     </div>
   );
 };
