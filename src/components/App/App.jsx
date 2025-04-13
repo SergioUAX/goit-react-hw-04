@@ -17,24 +17,35 @@ const App = () => {
   const [topic, setTopic] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  
-  const handleSearch = async (searchTopic) => {
+    
+  const handleSearch = (searchTopic) => {
     if (searchTopic.trim() === '') {
       ErrorMessage("Please enter a search topic !!!");
-      return;
+    return;
     }
+
+    setImages([]);
+    setTopic(searchTopic);
+  };
+
+  useEffect(() => {
+  const fetchImages = async () => {
+    if (topic.trim() === '') return;
+
     try {
-      setImages([]);      
       setLoading(true);
-      setTopic(searchTopic);
-      const data = await fetchImagesWithTopic(1, 12, searchTopic);
+      const data = await fetchImagesWithTopic(1, 12, topic);
       setImages(data.results);
-      setPage(2);      
-    } catch (err) {      
+      setPage(2);
+    } catch (err) {
       ErrorMessage(err.message);
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
-  }
+  };
+
+  fetchImages();
+  }, [topic]);
 
   const handleLoadMore = async () => {
     if (topic.trim() === '') {
